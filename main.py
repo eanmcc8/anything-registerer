@@ -1,4 +1,4 @@
-"""account_manager - 多平台账号管理后台"""
+"""account_manager - Multi-platform account management background"""
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,9 +34,9 @@ app.include_router(actions_router, prefix="/api")
 def on_startup():
     init_db()
     load_all()
-    print("[OK] 数据库初始化完成")
+    print("[OK] Database initialization complete")
     from core.registry import list_platforms
-    print(f"[OK] 已加载平台: {[p['name'] for p in list_platforms()]}")
+    print(f"[OK] Loaded platforms: {[p['name'] for p in list_platforms()]}")
     from core.scheduler import scheduler
     scheduler.start()
     from services.solver_manager import start_async
@@ -62,10 +62,10 @@ def solver_restart():
     from services.solver_manager import stop, start_async
     stop()
     start_async()
-    return {"message": "重启中"}
+    return {"message": "Restarting..."}
 
 
-# 挂载前端静态文件（生产模式）
+# Mount frontend static files (production mode)
 _static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.isdir(_static_dir):
     app.mount("/assets", StaticFiles(directory=os.path.join(_static_dir, "assets")), name="assets")

@@ -1,4 +1,4 @@
-"""ChatGPT 专用功能 API"""
+"""ChatGPT dedicated functionality API"""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from pydantic import BaseModel
@@ -23,12 +23,12 @@ class UploadRequest(BaseModel):
 def _get_account(account_id: int, session: Session) -> AccountModel:
     acc = session.get(AccountModel, account_id)
     if not acc or acc.platform != "chatgpt":
-        raise HTTPException(404, "账号不存在")
+        raise HTTPException(404, "Account not found")
     return acc
 
 
 def _to_codex_account(acc: AccountModel):
-    """转换为 codex-register 的 Account 对象（duck-typing）"""
+    """Convert to codex-register Account object (duck-typing)"""
     extra = acc.get_extra()
 
     class _Acc:
@@ -45,7 +45,7 @@ def _to_codex_account(acc: AccountModel):
     return a
 
 
-# ── Token 刷新 ──────────────────────────────────────────────
+# ── Token Refresh ──────────────────────────────────────────────
 @router.post("/{account_id}/refresh-token")
 def refresh_token(account_id: int, proxy: Optional[str] = None,
                   session: Session = Depends(get_session)):
@@ -71,7 +71,7 @@ def refresh_token(account_id: int, proxy: Optional[str] = None,
     raise HTTPException(400, result.error_message)
 
 
-# ── 生成支付链接 ────────────────────────────────────────────
+# ── Generate Payment Link ────────────────────────────────────────────
 class PaymentReq(BaseModel):
     plan: str = "plus"  # plus | team
     country: str = "SG"
@@ -99,7 +99,7 @@ def generate_payment_link(account_id: int, req: PaymentReq,
     return {"url": url, "plan": req.plan, "country": req.country}
 
 
-# ── 检查订阅状态 ────────────────────────────────────────────
+# ── Check Subscription Status ────────────────────────────────────────────
 @router.get("/{account_id}/subscription")
 def check_subscription(account_id: int, proxy: Optional[str] = None,
                        session: Session = Depends(get_session)):
@@ -109,7 +109,7 @@ def check_subscription(account_id: int, proxy: Optional[str] = None,
     from platforms.chatgpt.payment import check_subscription_status
     status = check_subscription_status(codex_acc, proxy=proxy)
 
-    # 更新账号状态
+    # Update account status
     acc.status = status
     from datetime import datetime
     acc.updated_at = datetime.utcnow()
@@ -118,7 +118,7 @@ def check_subscription(account_id: int, proxy: Optional[str] = None,
     return {"subscription": status, "email": acc.email}
 
 
-# ── CPA 上传 ────────────────────────────────────────────────
+# ── CPA Upload ────────────────────────────────────────────────
 class CpaUploadReq(BaseModel):
     api_url: str
     api_key: str = ""

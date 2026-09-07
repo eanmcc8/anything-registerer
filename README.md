@@ -1,53 +1,53 @@
 # Any Auto Register
 
-> ⚠️ **免责声明**：本项目仅供学习和研究使用，不得用于任何商业用途。使用本项目所产生的一切后果由使用者自行承担。
+> ⚠️ **Disclaimer**: This project is for learning and research purposes only, and may not be used for any commercial purposes. Users are solely responsible for any consequences arising from the use of this project.
 
-多平台账号自动注册与管理系统，支持插件化扩展，内置 Web UI。
+Multi-platform account auto-registration and management system, with plugin extensibility and built-in Web UI.
 
-## 功能特性
+## Features
 
-- **多平台支持**：Trae.ai、Tavily、Cursor、Kiro、ChatGPT、OpenBlockLabs，支持自定义插件扩展
-- **多邮箱服务**：MoeMail（自建）、Laoudo、DuckMail、Cloudflare Worker 自建邮箱
-- **多执行模式**：API 协议（无浏览器）、无头浏览器（待实现）、有头浏览器（待实现）（各平台按需支持）
-- **验证码服务**：YesCaptcha、2Captcha、本地 Solver（Camoufox）
-- **代理池管理**：自动轮询、成功率统计、自动禁用失效代理
-- **并发注册**：可配置并发数
-- **实时日志**：SSE 实时推送注册日志到前端
-- **平台扩展操作**：各平台可自定义操作（如 Kiro 账号切换、Trae Pro 升级链接生成）
+- **Multi-platform support**: Trae.ai, Tavily, Cursor, Kiro, ChatGPT, OpenBlockLabs, with custom plugin extension support
+- **Multiple mailbox services**: MoeMail (self-hosted), Laoudo, DuckMail, Cloudflare Worker self-hosted email
+- **Multiple execution modes**: API protocol (no browser), headless browser (coming soon), headed browser (coming soon) (supported per platform as needed)
+- **Captcha services**: YesCaptcha, 2Captcha, local Solver (Camoufox)
+- **Proxy pool management**: automatic rotation, success rate statistics, automatic disabling of failed proxies
+- **Concurrent registration**: configurable concurrency
+- **Real-time logs**: SSE pushes registration logs to the frontend in real time
+- **Platform extended actions**: each platform can define custom actions (e.g. Kiro account switching, Trae Pro upgrade link generation)
 
-## 技术栈
+## Tech Stack
 
-| 层级 | 技术 |
+| Layer | Technology |
 |------|------|
-| 后端 | FastAPI + SQLite（SQLModel）|
-| 前端 | React + TypeScript + Vite + TailwindCSS |
-| HTTP | curl_cffi（浏览器指纹伪装）|
-| 浏览器自动化 | Playwright / Camoufox |
+| Backend | FastAPI + SQLite (SQLModel) |
+| Frontend | React + TypeScript + Vite + TailwindCSS |
+| HTTP | curl_cffi (browser fingerprint spoofing) |
+| Browser Automation | Playwright / Camoufox |
 
-## 快速开始
+## Quick Start
 
-### 环境要求
+### Requirements
 
 - Python 3.11+
 - Node.js 18+
 
-### 安装
+### Installation
 
 #### macOS / Linux
 
 ```bash
-# 克隆项目
+# Clone repository
 git clone <repo_url>
 cd account_manager
 
-# 创建虚拟环境
+# Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 安装后端依赖
+# Install backend dependencies
 pip install -r requirements.txt
 
-# 构建前端
+# Build frontend
 cd frontend
 npm install
 npm run build
@@ -57,35 +57,35 @@ cd ..
 #### Windows
 
 ```bat
-:: 克隆项目
+:: Clone repository
 git clone <repo_url>
 cd account_manager
 
-:: 创建虚拟环境
+:: Create virtual environment
 python -m venv .venv
 .venv\Scripts\activate
 
-:: 安装后端依赖
+:: Install backend dependencies
 pip install -r requirements.txt
 
-:: 构建前端
+:: Build frontend
 cd frontend
 npm install
 npm run build
 cd ..
 ```
 
-### 安装浏览器（可选，无头/有头浏览器模式需要）
+### Install Browsers (optional, required for headless/headed modes)
 
 ```bash
-# Playwright 浏览器
+# Playwright browsers
 python3 -m playwright install chromium
 
-# Camoufox（用于本地 Turnstile Solver）
+# Camoufox (for local Turnstile Solver)
 python3 -m camoufox fetch
 ```
 
-### 启动
+### Start
 
 #### macOS / Linux
 
@@ -99,59 +99,59 @@ python3 -m camoufox fetch
 .venv\Scripts\python -m uvicorn main:app --port 8000
 ```
 
-浏览器访问 `http://localhost:5173`
+Open browser and visit `http://localhost:5173`
 
-### 开发模式（前端热更新）
+### Development Mode (frontend hot reload)
 
 ```bash
 cd frontend
 npm run dev
-# 访问 http://localhost:5173
+# Visit http://localhost:5173
 ```
 
-## 邮箱服务配置
+## Mailbox Service Configuration
 
-注册时需要选择一种邮箱服务用于接收验证码。
+A mailbox service is required during registration to receive verification codes.
 
-### MoeMail（推荐）
+### MoeMail (Recommended)
 
-基于开源项目 [cloudflare_temp_email](https://github.com/dreamhunter2333/cloudflare_temp_email) 自建的临时邮箱服务，无需配置任何参数，系统自动注册临时账号并生成邮箱。
+A temporary email service self-hosted based on the open-source project [cloudflare_temp_email](https://github.com/dreamhunter2333/cloudflare_temp_email). No configuration is required; the system automatically registers temporary accounts and generates email addresses.
 
-在注册页选择 **MoeMail**，填写你部署的实例地址（默认使用公共实例）。
+On the registration page, select **MoeMail** and fill in your deployed instance address (public instance is used by default).
 
 ### Laoudo
 
-使用固定的自有域名邮箱，稳定性最高，适合长期使用。
+Uses a fixed self-owned domain email with the highest stability, suitable for long-term use.
 
-| 参数 | 说明 |
+| Parameter | Description |
 |------|------|
-| 邮箱地址 | 完整邮箱地址，如 `user@example.com` |
-| Account ID | 邮箱账号 ID（在 Laoudo 面板查看）|
-| JWT Token | 登录后从浏览器 Cookie 或接口获取的认证 Token |
+| Email Address | Full email address, e.g. `user@example.com` |
+| Account ID | Email account ID (view in Laoudo panel) |
+| JWT Token | Authentication token obtained from browser cookies or API after login |
 
-### Cloudflare Worker 自建邮箱
+### Cloudflare Worker Self-hosted Email
 
-基于 [cloudflare_temp_email](https://github.com/dreamhunter2333/cloudflare_temp_email) 自行部署的邮箱服务，完全自主可控。
+An email service self-hosted and deployed based on [cloudflare_temp_email](https://github.com/dreamhunter2333/cloudflare_temp_email), fully under your control.
 
-**部署步骤**：参考项目文档，部署 Cloudflare Worker + D1 数据库 + Email Routing。
+**Deployment steps**: refer to the project documentation to deploy Cloudflare Worker + D1 database + Email Routing.
 
-| 参数 | 说明 |
+| Parameter | Description |
 |------|------|
-| API URL | Worker 的后端 API 地址，如 `https://api.your-domain.com` |
-| Admin Token | 管理员密码，在 Worker 环境变量 `ADMIN_PASSWORDS` 中配置 |
-| 域名 | 收件邮箱的域名，如 `your-domain.com`（需配置 MX 记录指向 Cloudflare）|
-| Fingerprint | 可选，Worker 开启 fingerprint 验证时填写 |
+| API URL | Worker backend API address, e.g. `https://api.your-domain.com` |
+| Admin Token | Admin password, configured in Worker environment variable `ADMIN_PASSWORDS` |
+| Domain | Receiving email domain, e.g. `your-domain.com` (MX record must point to Cloudflare) |
+| Fingerprint | Optional, fill in when Worker enables fingerprint verification |
 
 ### DuckMail
 
-公共临时邮箱服务，无需配置，直接使用。部分地区需要代理。
+Public temporary email service, no configuration needed, ready to use. A proxy may be required in some regions.
 
-## 验证码服务配置
+## Captcha Service Configuration
 
-| 服务 | 说明 |
+| Service | Description |
 |------|------|
-| YesCaptcha | 需填写 Client Key，在 [yescaptcha.com](https://yescaptcha.com) 注册获取 |
-| 本地 Solver | 使用 Camoufox 本地解码，需先执行 `python3 -m camoufox fetch` |
+| YesCaptcha | Requires Client Key, obtain from [yescaptcha.com](https://yescaptcha.com) |
+| Local Solver | Uses Camoufox for local decoding, run `python3 -m camoufox fetch` first |
 
 ## 项目结构
 
@@ -183,9 +183,9 @@ account_manager/
 └── frontend/               # React 前端
 ```
 
-## 插件开发
+## Plugin Development
 
-添加新平台只需在 `platforms/` 下新建目录，实现 `plugin.py`：
+To add a new platform, create a new directory under `platforms/` and implement `plugin.py`:
 
 ```python
 from core.base_platform import BasePlatform, Account, AccountStatus, RegisterConfig
@@ -199,8 +199,8 @@ class MyPlatform(BasePlatform):
     supported_executors = ["protocol"]
 
     def register(self, email: str, password: str = None) -> Account:
-        # 用 self.mailbox.get_email() 获取邮箱
-        # 用 self.mailbox.wait_for_code() 收验证码
+        # Use self.mailbox.get_email() to get email
+        # Use self.mailbox.wait_for_code() to receive verification code
         ...
 
     def check_valid(self, account: Account) -> bool:
@@ -209,4 +209,4 @@ class MyPlatform(BasePlatform):
 
 ## License
 
-MIT License — 仅供学习研究，禁止商业使用。
+MIT License — for learning and research only, commercial use prohibited.

@@ -25,13 +25,13 @@ class ConfigUpdate(BaseModel):
 @router.get("")
 def get_config():
     all_cfg = config_store.get_all()
-    # 只返回已知 key，未设置的返回空字符串
+    # Only return known keys; unset keys return empty string
     return {k: all_cfg.get(k, "") for k in CONFIG_KEYS}
 
 
 @router.put("")
 def update_config(body: ConfigUpdate):
-    # 只允许更新已知 key
+    # Only allow updating known keys
     safe = {k: v for k, v in body.data.items() if k in CONFIG_KEYS}
     config_store.set_many(safe)
     return {"ok": True, "updated": list(safe.keys())}

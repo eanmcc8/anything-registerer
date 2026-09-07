@@ -1,4 +1,4 @@
-"""OpenBlockLabs 平台插件"""
+"""OpenBlockLabs platform plugin"""
 import random, string
 from core.base_platform import BasePlatform, Account, AccountStatus, RegisterConfig
 from core.base_mailbox import BaseMailbox
@@ -23,16 +23,16 @@ class OpenBlockLabsPlatform(BasePlatform):
 
         mail_acct = self.mailbox.get_email() if self.mailbox else None
         email = email or (mail_acct.email if mail_acct else None)
-        log(f"邮箱: {email}")
+        log(f"Email: {email}")
         before_ids = self.mailbox.get_current_ids(mail_acct) if mail_acct else set()
 
         def otp_cb():
-            log("等待验证码...")
+            log("Waiting for verification code...")
             code = self.mailbox.wait_for_code(mail_acct, keyword="", before_ids=before_ids)
-            if code: log(f"验证码: {code}")
+            if code: log(f"Verification code: {code}")
             return code
 
-        # 随机姓名
+        # Generate random name
         first_name = "".join(random.choices(string.ascii_lowercase, k=5)).capitalize()
         last_name  = "".join(random.choices(string.ascii_lowercase, k=5)).capitalize()
 
@@ -48,7 +48,7 @@ class OpenBlockLabsPlatform(BasePlatform):
         )
 
         if not result.get("success"):
-            raise RuntimeError(f"注册失败: {result.get('error')}")
+            raise RuntimeError(f"Registration failed: {result.get('error')}")
 
         return Account(
             platform="openblocklabs",

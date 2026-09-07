@@ -1,4 +1,4 @@
-"""启动本地 Turnstile Solver 服务"""
+"""Start local Turnstile Solver service"""
 import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))

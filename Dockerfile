@@ -1,4 +1,4 @@
-# Stage 1: 构建前端
+# Stage 1: Build frontend
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
@@ -6,18 +6,18 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Python 后端 + 运行环境
+# Stage 2: Python backend + runtime environment
 FROM python:3.12-slim
 
-# 系统依赖：Chromium、Xvfb、x11vnc、noVNC
+# System dependencies: Chromium, Xvfb, x11vnc, noVNC
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # 浏览器运行依赖
+    # Browser runtime dependencies
     chromium chromium-driver \
-    # 虚拟显示 + VNC
+    # Virtual display + VNC
     xvfb x11vnc \
-    # noVNC 依赖
+    # noVNC dependencies
     novnc websockify \
-    # 其他
+    # Other
     curl ca-certificates fonts-liberation libnss3 libatk-bridge2.0-0 \
     libdrm2 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxkbcommon0 \
     libasound2 libpango-1.0-0 libcairo2 libgtk-3-0 \
@@ -25,23 +25,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# 安装 Python 依赖
+# Install Python dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 安装 Playwright 浏览器
+# Install Playwright browsers
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN playwright install chromium --with-deps || true
 
-# 复制后端代码
+# Copy backend code
 COPY . .
-# 不需要 .venv 和 frontend 源码
+# We don't need .venv and frontend source code
 RUN rm -rf .venv frontend
 
-# 复制前端构建产物
+# Copy frontend build artifacts
 COPY --from=frontend-builder /app/static ./static
 
-# 启动脚本
+# Startup script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 

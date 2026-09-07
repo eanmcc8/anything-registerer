@@ -11,15 +11,15 @@ const STATUS_VARIANT: Record<string, any> = {
   expired: 'warning', invalid: 'danger',
 }
 const PLATFORMS = [
-  { key: 'trae',          label: 'Trae.ai'       },
-  { key: 'tavily',        label: 'Tavily'        },
-  { key: 'cursor',        label: 'Cursor'        },
-  { key: 'kiro',          label: 'Kiro'          },
-  { key: 'chatgpt',       label: 'ChatGPT'       },
+  { key: 'trae', label: 'Trae.ai' },
+  { key: 'tavily', label: 'Tavily' },
+  { key: 'cursor', label: 'Cursor' },
+  { key: 'kiro', label: 'Kiro' },
+  { key: 'chatgpt', label: 'ChatGPT' },
   { key: 'openblocklabs', label: 'OpenBlockLabs' },
 ]
 
-// ── SSE 日志面板 ──────────────────────────────────────────
+// ── SSE Log Panel ──────────────────────────────────────────
 function LogPanel({ taskId, onDone }: { taskId: string; onDone: () => void }) {
   const [lines, setLines] = useState<string[]>([])
   const [done, setDone] = useState(false)
@@ -44,22 +44,21 @@ function LogPanel({ taskId, onDone }: { taskId: string; onDone: () => void }) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto bg-black/40 rounded-lg p-3 font-mono text-xs space-y-0.5 min-h-[200px] max-h-[400px]">
-        {lines.length === 0 && <div className="text-[var(--text-muted)]">等待日志...</div>}
+        {lines.length === 0 && <div className="text-[var(--text-muted)]">Waiting for logs...</div>}
         {lines.map((l, i) => (
-          <div key={i} className={`leading-5 ${
-            l.includes('✓') || l.includes('成功') ? 'text-emerald-400' :
-            l.includes('✗') || l.includes('失败') || l.includes('错误') ? 'text-red-400' :
-            'text-[var(--text-secondary)]'
-          }`}>{l}</div>
+          <div key={i} className={`leading-5 ${l.includes('✓') || l.includes('成功') ? 'text-emerald-400' :
+              l.includes('✗') || l.includes('失败') || l.includes('错误') ? 'text-red-400' :
+                'text-[var(--text-secondary)]'
+            }`}>{l}</div>
         ))}
         <div ref={bottomRef} />
       </div>
-      {done && <div className="text-xs text-emerald-400 mt-2">注册完成</div>}
+      {done && <div className="text-xs text-emerald-400 mt-2">Registration complete</div>}
     </div>
   )
 }
 
-// ── 注册弹框 ────────────────────────────────────────────────
+// ── Registration Modal ────────────────────────────────────────────────
 function RegisterModal({ platform, onClose, onDone }: { platform: string; onClose: () => void; onDone: () => void }) {
   const [regCount, setRegCount] = useState(1)
   const [concurrency, setConcurrency] = useState(1)
@@ -99,9 +98,9 @@ function RegisterModal({ platform, onClose, onDone }: { platform: string; onClos
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={!taskId ? onClose : undefined}>
       <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-lg shadow-2xl flex flex-col"
-           onClick={e => e.stopPropagation()} style={{maxHeight: '80vh'}}>
+        onClick={e => e.stopPropagation()} style={{ maxHeight: '80vh' }}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
-          <h2 className="text-base font-semibold text-[var(--text-primary)]">注册 {PLATFORMS.find(p=>p.key===platform)?.label}</h2>
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">Register {PLATFORMS.find(p => p.key === platform)?.label}</h2>
           <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-4 w-4" /></button>
         </div>
         <div className="px-6 py-4 flex-1 overflow-y-auto flex flex-col gap-4">
@@ -109,20 +108,20 @@ function RegisterModal({ platform, onClose, onDone }: { platform: string; onClos
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1">注册数量</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1">Registration Count</label>
                   <input type="number" min={1} max={99} value={regCount}
                     onChange={e => setRegCount(Number(e.target.value))}
                     className="w-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-1.5 text-sm text-center" />
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1">并发数</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1">Concurrency</label>
                   <input type="number" min={1} max={5} value={concurrency}
                     onChange={e => setConcurrency(Number(e.target.value))}
                     className="w-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-1.5 text-sm text-center" />
                 </div>
               </div>
               <Button onClick={start} disabled={starting} className="w-full">
-                {starting ? '启动中...' : '开始注册'}
+                {starting ? 'Starting...' : 'Start Registration'}
               </Button>
             </div>
           ) : (
@@ -131,7 +130,7 @@ function RegisterModal({ platform, onClose, onDone }: { platform: string; onClos
         </div>
         <div className="px-6 py-3 border-t border-[var(--border)] flex justify-end">
           <Button variant="outline" size="sm" onClick={onClose}>
-            {done ? '关闭' : '取消'}
+            {done ? 'Close' : 'Cancel'}
           </Button>
         </div>
       </div>
@@ -139,7 +138,7 @@ function RegisterModal({ platform, onClose, onDone }: { platform: string; onClos
   )
 }
 
-// ── 新增账号弹框 ─────────────────────────────────────────
+// ── Add Account Modal ─────────────────────────────────────────
 function AddModal({ platform, onClose, onDone }: { platform: string; onClose: () => void; onDone: () => void }) {
   const [form, setForm] = useState({ email: '', password: '', status: 'registered', token: '', cashier_url: '' })
   const [saving, setSaving] = useState(false)
@@ -159,13 +158,13 @@ function AddModal({ platform, onClose, onDone }: { platform: string; onClose: ()
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-md shadow-2xl"
-           onClick={e => e.stopPropagation()}>
+        onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
-          <h2 className="text-base font-semibold text-[var(--text-primary)]">手动新增账号</h2>
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">Manually Add Account</h2>
           <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-4 w-4" /></button>
         </div>
         <div className="px-6 py-4 space-y-3">
-          {[['email','邮箱','text'],['password','密码','text'],['token','Token','text'],['cashier_url','试用链接','text']].map(([k,l,t]) => (
+          {[['email', 'Email', 'text'], ['password', 'Password', 'text'], ['token', 'Token', 'text'], ['cashier_url', 'Trial Link', 'text']].map(([k, l, t]) => (
             <div key={k}>
               <label className="text-xs text-[var(--text-muted)] block mb-1">{l}</label>
               <input type={t} value={(form as any)[k]} onChange={e => set(k, e.target.value)}
@@ -173,24 +172,24 @@ function AddModal({ platform, onClose, onDone }: { platform: string; onClose: ()
             </div>
           ))}
           <div>
-            <label className="text-xs text-[var(--text-muted)] block mb-1">状态</label>
+            <label className="text-xs text-[var(--text-muted)] block mb-1">Status</label>
             <select value={form.status} onChange={e => set('status', e.target.value)}
               className="w-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-2 text-sm">
-              <option value="registered">已注册</option>
-              <option value="trial">试用中</option>
-              <option value="subscribed">已订阅</option>
+              <option value="registered">Registered</option>
+              <option value="trial">Trial</option>
+              <option value="subscribed">Subscribed</option>
             </select>
           </div>
         </div>
         <div className="flex gap-3 px-6 py-4 border-t border-[var(--border)]">
-          <Button onClick={save} disabled={saving} className="flex-1">{saving ? '保存中...' : '保存'}</Button>
-          <Button variant="outline" onClick={onClose} className="flex-1">取消</Button>
+          <Button onClick={save} disabled={saving} className="flex-1">{saving ? 'Saving...' : 'Save'}</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
         </div>
       </div>
     </div>
   )
 }
-// ── 行操作菜单 ─────────────────────────────────────────────
+// ── Row Action Menu ─────────────────────────────────────────────
 function ActionMenu({ acc, onDetail, onDelete }: { acc: any; onDetail: () => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false)
   const [actions, setActions] = useState<any[]>([])
@@ -198,7 +197,7 @@ function ActionMenu({ acc, onDetail, onDelete }: { acc: any; onDetail: () => voi
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    apiFetch(`/actions/${acc.platform}`).then(d => setActions(d.actions || [])).catch(() => {})
+    apiFetch(`/actions/${acc.platform}`).then(d => setActions(d.actions || [])).catch(() => { })
   }, [acc.platform])
   useEffect(() => {
     if (toast) { const t = setTimeout(() => setToast(null), 4000); return () => clearTimeout(t) }
@@ -213,19 +212,18 @@ function ActionMenu({ acc, onDetail, onDelete }: { acc: any; onDetail: () => voi
   return (
     <div className="relative flex items-center gap-2">
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-2 ${
-          toast.type === 'success' ? 'bg-emerald-500/90 text-white' : 'bg-red-500/90 text-white'
-        }`} onClick={() => setToast(null)}>
+        <div className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-top-2 ${toast.type === 'success' ? 'bg-emerald-500/90 text-white' : 'bg-red-500/90 text-white'
+          }`} onClick={() => setToast(null)}>
           {toast.type === 'success' ? '✓ ' : '✗ '}{toast.text}
         </div>
       )}
-      <button onClick={onDetail} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">详情</button>
-      <button onClick={() => { if (confirm(`确认删除 ${acc.email}？`)) apiFetch(`/accounts/${acc.id}`, { method: 'DELETE' }).then(onDelete) }}
-        className="text-xs text-red-400 hover:text-red-300">删除</button>
+      <button onClick={onDetail} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">Details</button>
+      <button onClick={() => { if (confirm(`Confirm delete ${acc.email}?`)) apiFetch(`/accounts/${acc.id}`, { method: 'DELETE' }).then(onDelete) }}
+        className="text-xs text-red-400 hover:text-red-300">Delete</button>
       {actions.length > 0 && (
         <div className="relative" ref={menuRef}>
           <button onClick={() => setOpen(o => !o)}
-            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">更多 ▾</button>
+            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">More ▾</button>
           {open && (
             <div className="absolute right-0 top-5 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg shadow-lg z-20 min-w-[120px] py-1">
               {actions.map(a => (
@@ -236,15 +234,15 @@ function ActionMenu({ acc, onDetail, onDelete }: { acc: any; onDetail: () => voi
                     apiFetch(`/actions/${acc.platform}/${acc.id}/${a.id}`, { method: 'POST', body: JSON.stringify({ params: {} }) })
                       .then(r => {
                         setRunning(null)
-                        if (!r.ok) { setToast({ type: 'error', text: r.error || '操作失败' }); return }
+                        if (!r.ok) { setToast({ type: 'error', text: r.error || 'Action failed' }); return }
                         const data = r.data || {}
                         if (data.url || data.checkout_url || data.cashier_url) { window.open(data.url || data.checkout_url || data.cashier_url, '_blank') }
-                        else { setToast({ type: 'success', text: data.message || '操作成功' }) }
-                      }).catch(() => { setRunning(null); setToast({ type: 'error', text: '请求失败' }) })
+                        else { setToast({ type: 'success', text: data.message || 'Action successful' }) }
+                      }).catch(() => { setRunning(null); setToast({ type: 'error', text: 'Request failed' }) })
                   }}
                   disabled={!!running}
                   className="w-full text-left px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50">
-                  {running === a.id ? '执行中...' : a.label}
+                  {running === a.id ? 'Running...' : a.label}
                 </button>
               ))}
             </div>
@@ -255,7 +253,7 @@ function ActionMenu({ acc, onDetail, onDelete }: { acc: any; onDetail: () => voi
   )
 }
 
-// ── 账号详情弹框 ───────────────────────────────────────────
+// ── Account Detail Modal ───────────────────────────────────────────
 function DetailModal({ acc, onClose, onSave }: { acc: any; onClose: () => void; onSave: () => void }) {
   const [form, setForm] = useState({ status: acc.status, token: acc.token || '', cashier_url: acc.cashier_url || '' })
   const [saving, setSaving] = useState(false)
@@ -273,20 +271,20 @@ function DetailModal({ acc, onClose, onSave }: { acc: any; onClose: () => void; 
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-lg shadow-2xl overflow-y-auto" style={{maxHeight:'90vh'}} onClick={e => e.stopPropagation()}>
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-lg shadow-2xl overflow-y-auto" style={{ maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
           <div>
-            <h2 className="text-base font-semibold text-[var(--text-primary)]">账号详情</h2>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">Account Details</h2>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">{acc.email}</p>
           </div>
           <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-4 w-4" /></button>
         </div>
         <div className="px-6 py-4 space-y-3">
           <div>
-            <label className="text-xs text-[var(--text-muted)] block mb-1">状态</label>
+            <label className="text-xs text-[var(--text-muted)] block mb-1">Status</label>
             <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
               className="w-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-2 text-sm">
-              {['registered','trial','subscribed','expired','invalid'].map(s => <option key={s} value={s}>{s}</option>)}
+              {['registered', 'trial', 'subscribed', 'expired', 'invalid'].map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
           {extraTokenKeys.length > 0 && (
@@ -310,15 +308,15 @@ function DetailModal({ acc, onClose, onSave }: { acc: any; onClose: () => void; 
           </div>
         </div>
         <div className="flex gap-3 px-6 py-4 border-t border-[var(--border)]">
-          <Button onClick={save} disabled={saving} className="flex-1">{saving ? '保存中...' : '保存'}</Button>
-          <Button variant="outline" onClick={onClose} className="flex-1">取消</Button>
+          <Button onClick={save} disabled={saving} className="flex-1">{saving ? 'Saving...' : 'Save'}</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
         </div>
       </div>
     </div>
   )
 }
 
-// ── 导入弹框 ────────────────────────────────────────────────
+// ── Import Modal ────────────────────────────────────────────────
 function ImportModal({ platform, onClose, onDone }: { platform: string; onClose: () => void; onDone: () => void }) {
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -328,20 +326,20 @@ function ImportModal({ platform, onClose, onDone }: { platform: string; onClose:
     try {
       const lines = text.trim().split('\n').filter(Boolean)
       const res = await apiFetch('/accounts/import', { method: 'POST', body: JSON.stringify({ platform, lines }) })
-      setResult(`导入成功 ${res.created} 个`); onDone()
-    } catch (e: any) { setResult(`失败: ${e.message}`) } finally { setLoading(false) }
+      setResult(`Imported ${res.created} accounts`); onDone()
+    } catch (e: any) { setResult(`Failed: ${e.message}`) } finally { setLoading(false) }
   }
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl w-[480px] p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="text-base font-semibold text-[var(--text-primary)] mb-2">批量导入</h2>
-        <p className="text-xs text-[var(--text-muted)] mb-3">每行格式: <code className="bg-[var(--bg-hover)] px-1 rounded">email password [cashier_url]</code></p>
+        <h2 className="text-base font-semibold text-[var(--text-primary)] mb-2">Batch Import</h2>
+        <p className="text-xs text-[var(--text-muted)] mb-3">Per line format: <code className="bg-[var(--bg-hover)] px-1 rounded">email password [cashier_url]</code></p>
         <textarea value={text} onChange={e => setText(e.target.value)} rows={8}
           className="w-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-2 text-xs font-mono resize-none mb-3" />
         {result && <p className="text-sm text-emerald-400 mb-3">{result}</p>}
         <div className="flex gap-2">
-          <Button onClick={submit} disabled={loading} className="flex-1">{loading ? '导入中...' : '导入'}</Button>
-          <Button variant="outline" onClick={onClose} className="flex-1">取消</Button>
+          <Button onClick={submit} disabled={loading} className="flex-1">{loading ? 'Importing...' : 'Import'}</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
         </div>
       </div>
     </div>
@@ -400,57 +398,57 @@ export default function Accounts() {
       {showAdd && <AddModal platform={tab} onClose={() => setShowAdd(false)} onDone={() => { setShowAdd(false); load() }} />}
       {showRegister && <RegisterModal platform={tab} onClose={() => setShowRegister(false)} onDone={() => load()} />}
 
-      {/* 操作栏 */}
+      {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        {/* 左侧：搜索和过滤 */}
+        {/* Left: Search and filter */}
         <div className="flex items-center gap-2">
-          <input type="text" placeholder="搜索邮箱..."
+          <input type="text" placeholder="Search email..."
             value={search} onChange={e => setSearch(e.target.value)}
             className="bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-1.5 text-sm w-44" />
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
             className="bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-2 py-1.5 text-sm">
-            <option value="">全部状态</option>
-            <option value="registered">已注册</option>
-            <option value="trial">试用中</option>
-            <option value="subscribed">已订阅</option>
-            <option value="expired">已过期</option>
-            <option value="invalid">已失效</option>
+            <option value="">All Statuses</option>
+            <option value="registered">Registered</option>
+            <option value="trial">Trial</option>
+            <option value="subscribed">Subscribed</option>
+            <option value="expired">Expired</option>
+            <option value="invalid">Invalid</option>
           </select>
-          <span className="text-xs text-[var(--text-muted)]">{total} 个账号</span>
+          <span className="text-xs text-[var(--text-muted)]">{total} accounts</span>
         </div>
-        {/* 右侧：操作按钮 */}
+        {/* Right: Action buttons */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowImport(true)}><Upload className="h-4 w-4 mr-1" />导入</Button>
-          <Button variant="outline" size="sm" onClick={exportCsv} disabled={accounts.length === 0}><Download className="h-4 w-4 mr-1" />导出</Button>
-          <Button variant="outline" size="sm" onClick={() => setShowAdd(true)}><Plus className="h-4 w-4 mr-1" />新增</Button>
-          <Button variant="outline" size="sm" onClick={() => setShowRegister(true)}><PlusCircle className="h-4 w-4 mr-1" />注册</Button>
+          <Button variant="outline" size="sm" onClick={() => setShowImport(true)}><Upload className="h-4 w-4 mr-1" />Import</Button>
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={accounts.length === 0}><Download className="h-4 w-4 mr-1" />Export</Button>
+          <Button variant="outline" size="sm" onClick={() => setShowAdd(true)}><Plus className="h-4 w-4 mr-1" />Add</Button>
+          <Button variant="outline" size="sm" onClick={() => setShowRegister(true)}><PlusCircle className="h-4 w-4 mr-1" />Register</Button>
           <Button variant="outline" size="sm" onClick={() => load()} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
 
-      {/* 账号表格 */}
+      {/* Account table */}
       <Card>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--border)] text-[var(--text-muted)] text-xs">
-              <th className="px-4 py-3 text-left">邮箱</th>
-              <th className="px-4 py-3 text-left">密码</th>
-              <th className="px-4 py-3 text-left">状态</th>
-              <th className="px-4 py-3 text-left">地区</th>
-              <th className="px-4 py-3 text-left">试用链接</th>
-              <th className="px-4 py-3 text-left">注册时间</th>
+              <th className="px-4 py-3 text-left">Email</th>
+              <th className="px-4 py-3 text-left">Password</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Region</th>
+              <th className="px-4 py-3 text-left">Trial Link</th>
+              <th className="px-4 py-3 text-left">Registered At</th>
               <th className="px-4 py-3 text-left"></th>
             </tr>
           </thead>
           <tbody>
             {accounts.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-[var(--text-muted)]">暂无账号</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-[var(--text-muted)]">No accounts</td></tr>
             )}
             {accounts.map(acc => (
               <tr key={acc.id} className="border-b border-[var(--border)]/50 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer"
-                  onClick={() => setDetail(acc)}>
+                onClick={() => setDetail(acc)}>
                 <td className="px-4 py-3 font-mono text-xs">
                   <div className="flex items-center gap-1">
                     {acc.email}

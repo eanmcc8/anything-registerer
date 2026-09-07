@@ -1,4 +1,4 @@
-"""平台插件基类"""
+"""Platform plugin base class"""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
@@ -24,13 +24,13 @@ class Account:
     token: str = ""
     status: AccountStatus = AccountStatus.REGISTERED
     trial_end_time: int = 0       # unix timestamp
-    extra: dict = field(default_factory=dict)  # 平台自定义字段
+    extra: dict = field(default_factory=dict)  # Platform-specific custom fields
     created_at: int = field(default_factory=lambda: int(time.time()))
 
 
 @dataclass
 class RegisterConfig:
-    """注册任务配置"""
+    """Registration task configuration"""
     executor_type: str = "protocol"   # protocol | headless | headed
     captcha_solver: str = "yescaptcha"  # yescaptcha | 2captcha | manual
     proxy: Optional[str] = None
@@ -38,54 +38,54 @@ class RegisterConfig:
 
 
 class BasePlatform(ABC):
-    # 子类必须定义
+    # Subclasses must define
     name: str = ""
     display_name: str = ""
     version: str = "1.0.0"
-    # 子类声明支持的执行器类型，未列出的自动降级到 protocol
+    # Executor types declared by subclasses; unsupported types fall back to protocol
     supported_executors: list = ["protocol", "headless", "headed"]
 
     def __init__(self, config: RegisterConfig = None):
         self.config = config or RegisterConfig()
         if self.config.executor_type not in self.supported_executors:
             raise NotImplementedError(
-                f"{self.display_name} 暂不支持 '{self.config.executor_type}' 执行器，"
-                f"当前支持: {self.supported_executors}"
+                f"{self.display_name} does not support '{self.config.executor_type}' executor, "
+                f"currently supported: {self.supported_executors}"
             )
 
     @abstractmethod
     def register(self, email: str, password: str = None) -> Account:
-        """执行注册流程，返回 Account"""
+        """Execute registration flow, return Account"""
         ...
 
     @abstractmethod
     def check_valid(self, account: Account) -> bool:
-        """检测账号是否有效"""
+        """Check if account is valid"""
         ...
 
     def get_trial_url(self, account: Account) -> Optional[str]:
-        """生成试用激活链接（可选实现）"""
+        """Generate trial activation link (optional implementation)"""
         return None
 
     def get_platform_actions(self) -> list:
         """
-        返回平台支持的额外操作列表，每项格式:
+        Return list of extra actions supported by the platform, each item format:
         {"id": str, "label": str, "params": [{"key": str, "label": str, "type": str}]}
         """
         return []
 
     def execute_action(self, action_id: str, account: Account, params: dict) -> dict:
         """
-        执行平台特定操作，返回 {"ok": bool, "data": any, "error": str}
+        Execute platform-specific action, return {"ok": bool, "data": any, "error": str}
         """
-        raise NotImplementedError(f"平台 {self.name} 不支持操作: {action_id}")
+        raise NotImplementedError(f"Platform {self.name} does not support action: {action_id}")
 
     def get_quota(self, account: Account) -> dict:
-        """查询账号配额（可选实现）"""
+        """Query account quota (optional implementation)"""
         return {}
 
     def _make_executor(self):
-        """根据 config 创建执行器"""
+        """Create executor from config"""
         from .executors.protocol import ProtocolExecutor
         t = self.config.executor_type
         if t == "protocol":
@@ -96,10 +96,10 @@ class BasePlatform(ABC):
         elif t == "headed":
             from .executors.playwright import PlaywrightExecutor
             return PlaywrightExecutor(proxy=self.config.proxy, headless=False)
-        raise ValueError(f"未知执行器类型: {t}")
+        raise ValueError(f"Unknown executor type: {t}")
 
     def _make_captcha(self, **kwargs):
-        """根据 config 创建验证码解决器"""
+        """Create captcha solver from config"""
         from .base_captcha import YesCaptcha, ManualCaptcha, LocalSolverCaptcha
         t = self.config.captcha_solver
         if t == "yescaptcha":
@@ -110,4 +110,4 @@ class BasePlatform(ABC):
         elif t == "local_solver":
             url = self.config.extra.get("solver_url", "http://localhost:8888")
             return LocalSolverCaptcha(url)
-        raise ValueError(f"未知验证码解决器: {t}")
+        raise ValueError(f"Unknown captcha solver: {t}")

@@ -3,11 +3,11 @@ services:
     build: .
     ports:
       - "8000:8000"   # FastAPI / Web UI
-      - "6080:6080"   # noVNC (headed 浏览器预览)
+      - "6080:6080"   # noVNC (headed browser preview)
     environment:
       - DISPLAY=:99
-      # 可选：设置 VNC 密码，不设置则无密码
+      # Optional: set VNC password, leave unset for no password
       # - VNC_PASSWORD=changeme
     volumes:
-      - ./data:/app/data   # 持久化 SQLite 数据库
+      - ./data:/app/data   # Persistent SQLite database
     restart: unless-stopped

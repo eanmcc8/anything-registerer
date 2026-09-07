@@ -36,26 +36,26 @@ export default function Dashboard() {
   useEffect(() => { load() }, [])
 
   const statCards = [
-    { label: '总账号数', value: stats?.total ?? '-', icon: Users, color: 'text-[var(--text-accent)]' },
-    { label: '试用中', value: stats?.by_status?.trial ?? 0, icon: Clock, color: 'text-amber-400' },
-    { label: '已订阅', value: stats?.by_status?.subscribed ?? 0, icon: CheckCircle, color: 'text-emerald-400' },
-    { label: '已失效', value: (stats?.by_status?.expired ?? 0) + (stats?.by_status?.invalid ?? 0), icon: XCircle, color: 'text-red-400' },
+    { label: 'Total Accounts', value: stats?.total ?? '-', icon: Users, color: 'text-[var(--text-accent)]' },
+    { label: 'Trial', value: stats?.by_status?.trial ?? 0, icon: Clock, color: 'text-amber-400' },
+    { label: 'Subscribed', value: stats?.by_status?.subscribed ?? 0, icon: CheckCircle, color: 'text-emerald-400' },
+    { label: 'Expired/Invalid', value: (stats?.by_status?.expired ?? 0) + (stats?.by_status?.invalid ?? 0), icon: XCircle, color: 'text-red-400' },
   ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">仪表盘</h1>
-          <p className="text-[var(--text-muted)] text-sm mt-1">账号总览</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1">Accounts Overview</p>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-          刷新
+          Refresh
         </Button>
       </div>
 
-      {/* 统计卡片 */}
+      {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4">
         {statCards.map(({ label, value, icon: Icon, color }) => (
           <Card key={label}>
@@ -71,9 +71,9 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {/* 平台分布 */}
+        {/* Platform distribution */}
         <Card>
-          <CardHeader><CardTitle>平台分布</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Platform Distribution</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {stats ? Object.entries(stats.by_platform || {}).map(([platform, count]: any) => (
               <div key={platform} className="flex items-center justify-between">
@@ -92,22 +92,22 @@ export default function Dashboard() {
                   <span className="text-sm text-[var(--text-muted)] w-8 text-right">{count}</span>
                 </div>
               </div>
-            )) : <p className="text-[var(--text-muted)] text-sm">加载中...</p>}
+            )) : <p className="text-[var(--text-muted)] text-sm">Loading...</p>}
           </CardContent>
         </Card>
 
-        {/* 状态分布 */}
+        {/* Status distribution */}
         <Card>
-          <CardHeader><CardTitle>状态分布</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Status Distribution</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {stats ? Object.entries(stats.by_status || {}).map(([status, count]: any) => (
               <div key={status} className="flex items-center justify-between">
                 <Badge variant={STATUS_VARIANT[status] || 'secondary'}>{status}</Badge>
                 <span className="text-sm text-[var(--text-muted)]">{count}</span>
               </div>
-            )) : <p className="text-[var(--text-muted)] text-sm">加载中...</p>}
+            )) : <p className="text-[var(--text-muted)] text-sm">Loading...</p>}
             {stats && Object.keys(stats.by_status || {}).length === 0 && (
-              <p className="text-[var(--text-muted)] text-sm">暂无数据</p>
+              <p className="text-[var(--text-muted)] text-sm">No data</p>
             )}
           </CardContent>
         </Card>

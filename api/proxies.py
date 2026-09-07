@@ -28,7 +28,7 @@ def list_proxies(session: Session = Depends(get_session)):
 def add_proxy(body: ProxyCreate, session: Session = Depends(get_session)):
     existing = session.exec(select(ProxyModel).where(ProxyModel.url == body.url)).first()
     if existing:
-        raise HTTPException(400, "代理已存在")
+        raise HTTPException(400, "Proxy already exists")
     p = ProxyModel(url=body.url, region=body.region)
     session.add(p)
     session.commit()
@@ -55,7 +55,7 @@ def bulk_add_proxies(body: ProxyBulkCreate, session: Session = Depends(get_sessi
 def delete_proxy(proxy_id: int, session: Session = Depends(get_session)):
     p = session.get(ProxyModel, proxy_id)
     if not p:
-        raise HTTPException(404, "代理不存在")
+        raise HTTPException(404, "Proxy not found")
     session.delete(p)
     session.commit()
     return {"ok": True}
@@ -65,7 +65,7 @@ def delete_proxy(proxy_id: int, session: Session = Depends(get_session)):
 def toggle_proxy(proxy_id: int, session: Session = Depends(get_session)):
     p = session.get(ProxyModel, proxy_id)
     if not p:
-        raise HTTPException(404, "代理不存在")
+        raise HTTPException(404, "Proxy not found")
     p.is_active = not p.is_active
     session.add(p)
     session.commit()
@@ -75,4 +75,4 @@ def toggle_proxy(proxy_id: int, session: Session = Depends(get_session)):
 @router.post("/check")
 def check_proxies(background_tasks: BackgroundTasks):
     background_tasks.add_task(proxy_pool.check_all)
-    return {"message": "检测任务已启动"}
+    return {"message": "Check task started"}

@@ -11,9 +11,9 @@ let mainWindow = null
 
 function getBackendPath() {
   if (isDev) {
-    return null // 开发模式：手动启动 uvicorn
+    return null // Dev mode: start uvicorn manually
   }
-  // 生产模式：PyInstaller 打包的可执行文件放在 resources/backend/
+  // Production mode: PyInstaller executable is in resources/backend/
   const ext = process.platform === 'win32' ? '.exe' : ''
   return path.join(process.resourcesPath, 'backend', `backend${ext}`)
 }

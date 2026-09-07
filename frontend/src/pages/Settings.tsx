@@ -6,98 +6,98 @@ import { cn } from '@/lib/utils'
 
 const SELECT_FIELDS: Record<string, { label: string; value: string }[]> = {
   mail_provider: [
-    { label: 'Laoudo（固定邮箱）', value: 'laoudo' },
-    { label: 'TempMail.lol（自动生成）', value: 'tempmail_lol' },
-    { label: 'DuckMail（自动生成）', value: 'duckmail' },
+    { label: 'Laoudo (fixed mailbox)', value: 'laoudo' },
+    { label: 'TempMail.lol (auto-generate)', value: 'tempmail_lol' },
+    { label: 'DuckMail (auto-generate)', value: 'duckmail' },
     { label: 'MoeMail (sall.cc)', value: 'moemail' },
-    { label: 'Freemail（自建 CF Worker）', value: 'freemail' },
-    { label: 'CF Worker（自建域名）', value: 'cfworker' },
+    { label: 'Freemail (self-hosted CF Worker)', value: 'freemail' },
+    { label: 'CF Worker (custom domain)', value: 'cfworker' },
   ],
   default_executor: [
-    { label: 'API 协议（无浏览器）', value: 'protocol' },
-    { label: '无头浏览器', value: 'headless' },
-    { label: '有头浏览器（调试用）', value: 'headed' },
+    { label: 'API protocol (no browser)', value: 'protocol' },
+    { label: 'Headless browser', value: 'headless' },
+    { label: 'Headed browser (debug)', value: 'headed' },
   ],
   default_captcha_solver: [
     { label: 'YesCaptcha', value: 'yescaptcha' },
     { label: '2Captcha', value: '2captcha' },
-    { label: '本地 Solver (Camoufox)', value: 'local_solver' },
-    { label: '手动', value: 'manual' },
+    { label: 'Local Solver (Camoufox)', value: 'local_solver' },
+    { label: 'Manual', value: 'manual' },
   ],
 }
 
 const TABS = [
   {
-    id: 'register', label: '注册设置', icon: Cpu,
+    id: 'register', label: 'Registration Settings', icon: Cpu,
     sections: [{
-      section: '默认注册方式',
-      desc: '控制注册任务如何执行',
+      section: 'Default Registration Method',
+      desc: 'Controls how registration tasks are executed',
       items: [
-        { key: 'default_executor', label: '执行器类型' },
+        { key: 'default_executor', label: 'Executor Type' },
       ],
     }],
   },
   {
-    id: 'mailbox', label: '邮箱服务', icon: Mail,
+    id: 'mailbox', label: 'Mailbox Service', icon: Mail,
     sections: [{
-      section: '默认邮箱服务',
-      desc: '选择注册时使用的邮箱类型',
+      section: 'Default Mailbox Service',
+      desc: 'Select the email type used during registration',
       items: [
-        { key: 'mail_provider', label: '邮箱服务' },
+        { key: 'mail_provider', label: 'Mailbox Service' },
       ],
     }, {
       section: 'Laoudo',
-      desc: '固定邮箱，手动配置',
+      desc: 'Fixed mailbox, manually configured',
       items: [
-        { key: 'laoudo_email', label: '邮箱地址', placeholder: 'xxx@laoudo.com' },
+        { key: 'laoudo_email', label: 'Email Address', placeholder: 'xxx@laoudo.com' },
         { key: 'laoudo_account_id', label: 'Account ID', placeholder: '563' },
         { key: 'laoudo_auth', label: 'JWT Token', placeholder: 'eyJ...', secret: true },
       ],
     }, {
       section: 'Freemail',
-      desc: '基于 Cloudflare Worker 的自建邮箱，支持管理员令牌或账号密码认证',
+      desc: 'Self-hosted email based on Cloudflare Worker, supports admin token or account password authentication',
       items: [
         { key: 'freemail_api_url', label: 'API URL', placeholder: 'https://mail.example.com' },
-        { key: 'freemail_admin_token', label: '管理员令牌', secret: true },
-        { key: 'freemail_username', label: '用户名（可选）', placeholder: '' },
-        { key: 'freemail_password', label: '密码（可选）', secret: true },
+        { key: 'freemail_admin_token', label: 'Admin Token', secret: true },
+        { key: 'freemail_username', label: 'Username (optional)', placeholder: '' },
+        { key: 'freemail_password', label: 'Password (optional)', secret: true },
       ],
     }, {
       section: 'MoeMail',
-      desc: '自动注册账号并生成临时邮箱，默认无需配置',
+      desc: 'Auto-register accounts and generate temporary emails, no configuration needed by default',
       items: [
         { key: 'moemail_api_url', label: 'API URL', placeholder: 'https://sall.cc' },
       ],
     }, {
       section: 'TempMail.lol',
-      desc: '自动生成邮箱，无需配置，需要代理访问（CN IP 被封）',
+      desc: 'Auto-generate email, no configuration needed, requires proxy access (CN IPs blocked)',
       items: [],
     }, {
       section: 'DuckMail',
-      desc: '自动生成邮箱，随机创建账号（默认无需配置）',
+      desc: 'Auto-generate email, randomly create accounts (no configuration needed by default)',
       items: [
         { key: 'duckmail_api_url', label: 'Web URL', placeholder: 'https://www.duckmail.sbs' },
         { key: 'duckmail_provider_url', label: 'Provider URL', placeholder: 'https://api.duckmail.sbs' },
         { key: 'duckmail_bearer', label: 'Bearer Token', placeholder: 'kevin273945', secret: true },
       ],
     }, {
-      section: 'CF Worker 自建邮箱',
-      desc: '基于 Cloudflare Worker 的自建临时邮箱服务',
+      section: 'CF Worker Self-hosted Email',
+      desc: 'Self-hosted temporary email service based on Cloudflare Worker',
       items: [
         { key: 'cfworker_api_url', label: 'API URL', placeholder: 'https://apimail.example.com' },
-        { key: 'cfworker_admin_token', label: '管理员 Token', secret: true },
-        { key: 'cfworker_domain', label: '邮箱域名', placeholder: 'example.com' },
+        { key: 'cfworker_admin_token', label: 'Admin Token', secret: true },
+        { key: 'cfworker_domain', label: 'Email Domain', placeholder: 'example.com' },
         { key: 'cfworker_fingerprint', label: 'Fingerprint', placeholder: '6703363b...' },
       ],
     }],
   },
   {
-    id: 'captcha', label: '验证码', icon: Shield,
+    id: 'captcha', label: 'Captcha', icon: Shield,
     sections: [{
-      section: '验证码服务',
-      desc: '用于绕过注册页面的人机验证',
+      section: 'Captcha Service',
+      desc: 'Used to bypass human verification on registration pages',
       items: [
-        { key: 'default_captcha_solver', label: '默认服务' },
+        { key: 'default_captcha_solver', label: 'Default Service' },
         { key: 'yescaptcha_key', label: 'YesCaptcha Key', secret: true },
         { key: 'twocaptcha_key', label: '2Captcha Key', secret: true },
       ],
@@ -106,15 +106,15 @@ const TABS = [
   {
     id: 'chatgpt', label: 'ChatGPT', icon: Shield,
     sections: [{
-      section: 'CPA 面板',
-      desc: '注册完成后自动上传到 CPA 管理平台',
+      section: 'CPA Panel',
+      desc: 'Automatically upload to CPA management platform after registration',
       items: [
         { key: 'cpa_api_url', label: 'API URL', placeholder: 'https://your-cpa.example.com' },
         { key: 'cpa_api_key', label: 'API Key', secret: true },
       ],
     }, {
       section: 'Team Manager',
-      desc: '上传到自建 Team Manager 系统',
+      desc: 'Upload to self-hosted Team Manager system',
       items: [
         { key: 'team_manager_url', label: 'API URL', placeholder: 'https://your-tm.example.com' },
         { key: 'team_manager_key', label: 'API Key', secret: true },
@@ -196,8 +196,8 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">全局配置</h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">配置将持久化保存，注册任务自动使用</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Global Configuration</h1>
+        <p className="text-[var(--text-muted)] text-sm mt-1">Settings are persisted and automatically used by registration tasks</p>
       </div>
 
       <div className="flex gap-6">
@@ -226,12 +226,12 @@ export default function Settings() {
                   ? <CheckCircle className="h-3 w-3 text-emerald-400" />
                   : <XCircle className="h-3 w-3 text-red-400" />}
               <span className={cn('text-xs', solverRunning ? 'text-emerald-400' : 'text-[var(--text-muted)]')}>
-                {solverRunning === null ? '检测中' : solverRunning ? '运行中' : '未运行'}
+                {solverRunning === null ? 'Checking' : solverRunning ? 'Running' : 'Stopped'}
               </span>
             </div>
             <button onClick={restartSolver}
               className="mt-2 w-full text-xs px-3 py-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg text-left">
-              重启 Solver
+              Restart Solver
             </button>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function Settings() {
 
           <Button onClick={save} disabled={saving} className="w-full">
             <Save className="h-4 w-4 mr-2" />
-            {saved ? '已保存 ✓' : saving ? '保存中...' : '保存配置'}
+            {saved ? 'Saved ✓' : saving ? 'Saving...' : 'Save Configuration'}
           </Button>
         </div>
       </div>

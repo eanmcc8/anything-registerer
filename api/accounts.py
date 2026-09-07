@@ -31,7 +31,7 @@ def list_accounts(
 
 @router.get("/stats")
 def get_stats(session: Session = Depends(get_session)):
-    """统计各平台账号数量和状态分布"""
+    """Stats on account counts and status distribution per platform"""
     accounts = session.exec(select(AccountModel)).all()
     platforms: dict = {}
     statuses: dict = {}
@@ -45,7 +45,7 @@ def get_stats(session: Session = Depends(get_session)):
 def get_account(account_id: int, session: Session = Depends(get_session)):
     acc = session.get(AccountModel, account_id)
     if not acc:
-        raise HTTPException(404, "账号不存在")
+        raise HTTPException(404, "Account not found")
     return acc
 
 
@@ -53,7 +53,7 @@ def get_account(account_id: int, session: Session = Depends(get_session)):
 def delete_account(account_id: int, session: Session = Depends(get_session)):
     acc = session.get(AccountModel, account_id)
     if not acc:
-        raise HTTPException(404, "账号不存在")
+        raise HTTPException(404, "Account not found")
     session.delete(acc)
     session.commit()
     return {"ok": True}
@@ -64,9 +64,9 @@ def check_account(account_id: int, background_tasks: BackgroundTasks,
                   session: Session = Depends(get_session)):
     acc = session.get(AccountModel, account_id)
     if not acc:
-        raise HTTPException(404, "账号不存在")
+        raise HTTPException(404, "Account not found")
     background_tasks.add_task(_do_check, account_id)
-    return {"message": "检测任务已启动"}
+    return {"message": "Check task started"}
 
 
 def _do_check(account_id: int):
@@ -104,7 +104,7 @@ def check_all_accounts(platform: Optional[str] = None,
                        background_tasks: BackgroundTasks = None):
     from core.scheduler import scheduler
     background_tasks.add_task(scheduler.check_accounts_valid, platform)
-    return {"message": "批量检测任务已启动"}
+    return {"message": "Batch check task started"}
 
 
 @router.get("/export")
@@ -142,7 +142,7 @@ def import_accounts(
     lines: list[str],
     session: Session = Depends(get_session),
 ):
-    """批量导入，每行格式: email password [extra]"""
+    """Batch import, each line format: email password [extra]"""
     created = 0
     for line in lines:
         parts = line.strip().split()

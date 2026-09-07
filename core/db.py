@@ -1,4 +1,4 @@
-"""数据库模型 - SQLite via SQLModel"""
+"""Database models - SQLite via SQLModel"""
 from datetime import datetime
 from typing import Optional
 from sqlmodel import Field, SQLModel, create_engine, Session, select
@@ -21,7 +21,7 @@ class AccountModel(SQLModel, table=True):
     status: str = "registered"
     trial_end_time: int = 0
     cashier_url: str = ""
-    extra_json: str = "{}"   # JSON 存储平台自定义字段
+    extra_json: str = "{}"   # JSON storage for platform-specific custom fields
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -57,7 +57,7 @@ class ProxyModel(SQLModel, table=True):
 
 
 def save_account(account) -> 'AccountModel':
-    """从 base_platform.Account 存入数据库"""
+    """Save from base_platform.Account to database"""
     with Session(engine) as session:
         m = AccountModel(
             platform=account.platform,

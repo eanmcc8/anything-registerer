@@ -1,4 +1,4 @@
-"""代理池 - 从数据库读取代理，支持轮询和按区域选取"""
+"""Proxy pool - reads proxies from database, supports round-robin and region selection"""
 from typing import Optional
 from sqlmodel import Session, select
 from .db import ProxyModel, engine
@@ -7,7 +7,7 @@ import time
 
 class ProxyPool:
     def get_next(self, region: str = "") -> Optional[str]:
-        """按成功率轮询取一个可用代理"""
+        """Round-robin select an available proxy by success rate"""
         with Session(engine) as s:
             q = select(ProxyModel).where(ProxyModel.is_active == True)
             if region:
@@ -15,7 +15,7 @@ class ProxyPool:
             proxies = s.exec(q).all()
             if not proxies:
                 return None
-            # 按成功率排序，优先高成功率
+            # Sort by success rate, highest first
             proxies.sort(
                 key=lambda p: p.success_count / max(p.success_count + p.fail_count, 1),
                 reverse=True
@@ -37,14 +37,14 @@ class ProxyPool:
             if p:
                 p.fail_count += 1
                 p.last_checked = __import__('datetime').datetime.utcnow()
-                # 连续失败超过10次自动禁用
+                # Auto-disable after consecutive failures
                 if p.fail_count > 0 and p.success_count == 0 and p.fail_count >= 5:
                     p.is_active = False
                 s.add(p)
                 s.commit()
 
     def check_all(self) -> dict:
-        """检测所有代理可用性"""
+        """Check availability of all proxies"""
         import requests
         with Session(engine) as s:
             proxies = s.exec(select(ProxyModel)).all()

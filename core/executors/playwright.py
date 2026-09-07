@@ -1,4 +1,4 @@
-"""Playwright 执行器 - 支持 headless/headed 模式"""
+"""Playwright executor - supports headless/headed mode"""
 from ..base_executor import BaseExecutor, Response
 
 

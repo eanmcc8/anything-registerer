@@ -1,4 +1,4 @@
-"""邮箱池基类 - 抽象临时邮箱/收件服务"""
+"""Mailbox pool base class - abstract temporary mailbox/inbox service"""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -7,29 +7,29 @@ from dataclasses import dataclass
 class MailboxAccount:
     email: str
     account_id: str = ""
-    extra: dict = None  # 平台额外信息
+    extra: dict = None  # Platform-specific additional info
 
 
 class BaseMailbox(ABC):
     @abstractmethod
     def get_email(self) -> MailboxAccount:
-        """获取一个可用邮箱"""
+        """Get an available email"""
         ...
 
     @abstractmethod
     def wait_for_code(self, account: MailboxAccount, keyword: str = "",
                       timeout: int = 120, before_ids: set = None) -> str:
-        """等待并返回6位验证码"""
+        """Wait and return 6-digit verification code"""
         ...
 
     @abstractmethod
     def get_current_ids(self, account: MailboxAccount) -> set:
-        """返回当前邮件 ID 集合（用于过滤旧邮件）"""
+        """Return current message ID set (used to filter old messages)"""
         ...
 
 
 def create_mailbox(provider: str, extra: dict = None, proxy: str = None) -> 'BaseMailbox':
-    """工厂方法：根据 provider 创建对应的 mailbox 实例"""
+    """Factory method: create corresponding mailbox instance based on provider"""
     extra = extra or {}
     if provider == "tempmail_lol":
         return TempMailLolMailbox(proxy=proxy)
@@ -70,7 +70,7 @@ def create_mailbox(provider: str, extra: dict = None, proxy: str = None) -> 'Bas
 
 
 class LaoудоMailbox(BaseMailbox):
-    """laoudo.com 邮箱服务"""
+    """laoudo.com email service"""
     def __init__(self, auth_token: str, email: str, account_id: str):
         self.auth = auth_token
         self._email = email
@@ -130,11 +130,11 @@ class LaoудоMailbox(BaseMailbox):
             except Exception:
                 pass
             time.sleep(4)
-        raise TimeoutError(f"等待验证码超时 ({timeout}s)")
+        raise TimeoutError(f"Verification code timeout ({timeout}s)")
 
 
 class AitreMailbox(BaseMailbox):
-    """mail.aitre.cc 临时邮箱"""
+    """mail.aitre.cc temporary email"""
     def __init__(self, email: str):
         self._email = email
         self.api = "https://mail.aitre.cc/api/tempmail"
@@ -181,11 +181,11 @@ class AitreMailbox(BaseMailbox):
             except Exception:
                 pass
             time.sleep(3)
-        raise TimeoutError(f"等待验证码超时 ({timeout}s)")
+        raise TimeoutError(f"Verification code timeout ({timeout}s)")
 
 
 class TempMailLolMailbox(BaseMailbox):
-    """tempmail.lol 免费临时邮箱（无需注册，自动生成）"""
+    """tempmail.lol free temporary email (no registration needed, auto-generated)"""
 
     def __init__(self, proxy: str = None):
         self.api = "https://api.tempmail.lol/v2"
@@ -241,7 +241,7 @@ class TempMailLolMailbox(BaseMailbox):
 
 
 class DuckMailMailbox(BaseMailbox):
-    """DuckMail 自动生成邮箱（随机创建账号）"""
+    """DuckMail auto-generated email (randomly created account)"""
 
     def __init__(self, api_url: str = "https://www.duckmail.sbs",
                  provider_url: str = "https://api.duckmail.sbs",
@@ -267,13 +267,13 @@ class DuckMailMailbox(BaseMailbox):
         password = "Test" + "".join(random.choices(string.digits, k=8)) + "!"
         domain = self.provider_url.replace("https://api.", "").replace("https://", "")
         address = f"{username}@{domain}"
-        # 创建账号
+        # Create account
         r = requests.post(f"{self.api}/api/mail?endpoint=%2Faccounts",
             json={"address": address, "password": password},
             headers=self._common_headers(), proxies=self.proxy, timeout=15)
         data = r.json()
         self._address = data.get("address", address)
-        # 登录获取 token
+        # Login to get token
         r2 = requests.post(f"{self.api}/api/mail?endpoint=%2Ftoken",
             json={"address": self._address, "password": password},
             headers=self._common_headers(), proxies=self.proxy, timeout=15)
@@ -307,7 +307,7 @@ class DuckMailMailbox(BaseMailbox):
                     mid = str(msg.get("id") or msg.get("msgid") or "")
                     if mid in seen: continue
                     seen.add(mid)
-                    # 请求邮件详情获取完整 text
+                    # Fetch email details for full text
                     try:
                         r2 = requests.get(f"{self.api}/api/mail?endpoint=%2Fmessages%2F{mid}",
                             headers={"authorization": f"Bearer {account.account_id}",
@@ -327,7 +327,7 @@ class DuckMailMailbox(BaseMailbox):
 
 
 class CFWorkerMailbox(BaseMailbox):
-    """Cloudflare Worker 自建临时邮箱服务"""
+    """Cloudflare Worker self-hosted temporary email service"""
 
     def __init__(self, api_url: str, admin_token: str = "", domain: str = "",
                  fingerprint: str = "", proxy: str = None):
@@ -362,7 +362,7 @@ class CFWorkerMailbox(BaseMailbox):
         email = data.get("email", data.get("address", ""))
         token = data.get("token", data.get("jwt", ""))
         self._token = token
-        print(f"[CFWorker] 生成邮箱: {email} token={token[:40] if token else 'NONE'}...")
+        print(f"[CFWorker] Generated email: {email} token={token[:40] if token else 'NONE'}...")
         return MailboxAccount(email=email, account_id=token)
 
     def _get_mails(self, email: str) -> list:
@@ -394,15 +394,15 @@ class CFWorkerMailbox(BaseMailbox):
                         continue
                     seen.add(mid)
                     raw = str(mail.get("raw", ""))
-                    # 1. 优先匹配 <span>XXXXXX</span> （Trae 邮件格式）
+                    # 1. First match <span>XXXXXX</span> (Trae email format)
                     code_m = re.search(r'<span[^>]*>\s*(\d{6})\s*</span>', raw)
                     if code_m:
                         return code_m.group(1)
-                    # 2. 跳过 MIME header，只搜 body 部分，避免匹配时间戳
+                    # 2. Skip MIME headers, only search body to avoid matching timestamps
                     body_start = raw.find('\r\n\r\n')
                     search_text = raw[body_start:] if body_start != -1 else raw
                     search_text = re.sub(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', '', search_text)
-                    # 排除时间戳模式 m=+XXXXXX. 和 t=XXXXXXXXXX
+                    # Exclude timestamp patterns like m=+XXXXXX. and t=XXXXXXXXXX
                     search_text = re.sub(r'm=\+\d+\.\d+', '', search_text)
                     search_text = re.sub(r'\bt=\d+\b', '', search_text)
                     m = re.search(r'(?<!#)(?<!\d)(\d{6})(?!\d)', search_text)
@@ -415,7 +415,7 @@ class CFWorkerMailbox(BaseMailbox):
 
 
 class MoeMailMailbox(BaseMailbox):
-    """MoeMail (sall.cc) 邮箱服务 - 自动注册账号并生成临时邮箱"""
+    """MoeMail (sall.cc) email service - auto-register account and generate temporary email"""
 
     def __init__(self, api_url: str = "https://sall.cc", proxy: str = None):
         self.api = api_url.rstrip("/")
@@ -429,18 +429,18 @@ class MoeMailMailbox(BaseMailbox):
         s.proxies = self.proxy
         ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
         s.headers.update({"user-agent": ua, "origin": self.api, "referer": f"{self.api}/zh-CN/login"})
-        # 注册
+        # Register
         username = "".join(random.choices(string.ascii_lowercase + string.digits, k=12))
         password = "Test" + "".join(random.choices(string.digits, k=8)) + "!"
-        print(f"[MoeMail] 注册账号: {username} / {password}")
+        print(f"[MoeMail] Registering account: {username} / {password}")
         r_reg = s.post(f"{self.api}/api/auth/register",
             json={"username": username, "password": password, "turnstileToken": ""},
             timeout=15)
-        print(f"[MoeMail] 注册结果: {r_reg.status_code} {r_reg.text[:80]}")
-        # 获取 CSRF
+        print(f"[MoeMail] Registration result: {r_reg.status_code} {r_reg.text[:80]}")
+        # Get CSRF token
         csrf_r = s.get(f"{self.api}/api/auth/csrf", timeout=10)
         csrf = csrf_r.json().get("csrfToken", "")
-        # 登录
+        # Login
         s.post(f"{self.api}/api/auth/callback/credentials",
             headers={"content-type": "application/x-www-form-urlencoded"},
             data=f"username={username}&password={password}&csrfToken={csrf}&redirect=false&callbackUrl={self.api}",
@@ -449,18 +449,18 @@ class MoeMailMailbox(BaseMailbox):
         for cookie in s.cookies:
             if "session-token" in cookie.name:
                 self._session_token = cookie.value
-                print(f"[MoeMail] 登录成功")
+                print(f"[MoeMail] Login successful")
                 return cookie.value
-        print(f"[MoeMail] 登录失败，cookies: {[c.name for c in s.cookies]}")
+        print(f"[MoeMail] Login failed, cookies: {[c.name for c in s.cookies]}")
         return ""
 
     def get_email(self) -> MailboxAccount:
-        # 每次调用都重新注册新账号，保证邮箱唯一
+        # Re-register a new account each call to ensure email uniqueness
         self._session_token = None
         self._register_and_login()
         import random, string
         name = "".join(random.choices(string.ascii_letters + string.digits, k=8))
-        # 获取可用域名列表，随机选一个
+        # Get available domain list, pick one randomly
         domain = "sall.cc"
         try:
             cfg_r = self._session.get(f"{self.api}/api/config", timeout=10)
@@ -475,9 +475,9 @@ class MoeMailMailbox(BaseMailbox):
         data = r.json()
         self._email = data.get("email", data.get("address", ""))
         email_id = data.get("id", "")
-        print(f"[MoeMail] 生成邮箱: {self._email} id={email_id} domain={domain} status={r.status_code}")
+        print(f"[MoeMail] Generated email: {self._email} id={email_id} domain={domain} status={r.status_code}")
         if not email_id:
-            print(f"[MoeMail] 生成失败: {data}")
+            print(f"[MoeMail] Generation failed: {data}")
         if email_id:
             self._email_count = getattr(self, '_email_count', 0) + 1
         return MailboxAccount(email=self._email, account_id=str(email_id))
@@ -515,9 +515,9 @@ class MoeMailMailbox(BaseMailbox):
 
 class FreemailMailbox(BaseMailbox):
     """
-    Freemail 自建邮箱服务（基于 Cloudflare Worker）
-    项目: https://github.com/idinging/freemail
-    支持管理员令牌或账号密码两种认证方式
+    Freemail self-hosted email service (based on Cloudflare Worker)
+    Project: https://github.com/idinging/freemail
+    Supports admin token or username/password authentication
     """
 
     def __init__(self, api_url: str, admin_token: str = "",
@@ -552,7 +552,7 @@ class FreemailMailbox(BaseMailbox):
         data = r.json()
         email = data.get("email", "")
         self._email = email
-        print(f"[Freemail] 生成邮箱: {email}")
+        print(f"[Freemail] Generated email: {email}")
         return MailboxAccount(email=email, account_id=email)
 
     def get_current_ids(self, account: MailboxAccount) -> set:
@@ -576,11 +576,11 @@ class FreemailMailbox(BaseMailbox):
                     mid = str(msg.get("id", ""))
                     if not mid or mid in seen: continue
                     seen.add(mid)
-                    # 直接用 verification_code 字段
+                    # Use the verification_code field directly
                     code = str(msg.get("verification_code") or "")
                     if code and code != "None":
                         return code
-                    # 兜底：从 preview 提取
+                    # Fallback: extract from preview
                     text = str(msg.get("preview", "")) + " " + str(msg.get("subject", ""))
                     m = re.search(r"(?<!\d)(\d{6})(?!\d)", text)
                     if m: return m.group(1)

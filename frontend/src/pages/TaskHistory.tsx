@@ -28,8 +28,8 @@ export default function TaskHistory() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">任务历史</h1>
-          <p className="text-[var(--text-muted)] text-sm mt-1">注册任务执行记录</p>
+           <h1 className="text-2xl font-bold text-[var(--text-primary)]">Task History</h1>
+           <p className="text-[var(--text-muted)] text-sm mt-1">Registration task execution records</p>
         </div>
         <div className="flex gap-2">
           <select
@@ -37,7 +37,7 @@ export default function TaskHistory() {
             onChange={e => setPlatform(e.target.value)}
             className="bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-secondary)] rounded-md px-3 py-1.5 text-sm"
           >
-            <option value="">全部平台</option>
+            <option value="">All Platforms</option>
             <option value="trae">Trae</option>
             <option value="tavily">Tavily</option>
             <option value="cursor">Cursor</option>
@@ -52,16 +52,16 @@ export default function TaskHistory() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
-              <th className="px-4 py-3 text-left">时间</th>
-              <th className="px-4 py-3 text-left">平台</th>
-              <th className="px-4 py-3 text-left">邮箱</th>
-              <th className="px-4 py-3 text-left">状态</th>
-              <th className="px-4 py-3 text-left">错误信息</th>
+              <th className="px-4 py-3 text-left">Time</th>
+              <th className="px-4 py-3 text-left">Platform</th>
+              <th className="px-4 py-3 text-left">Email</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Error</th>
             </tr>
           </thead>
           <tbody>
             {logs.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-muted)]">暂无记录</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-muted)]">No records</td></tr>
             )}
             {logs.map(log => (
               <tr key={log.id} className="border-b border-white/5 hover:bg-[var(--bg-hover)]">
@@ -74,7 +74,7 @@ export default function TaskHistory() {
                 <td className="px-4 py-3 text-[var(--text-secondary)] font-mono text-xs">{log.email}</td>
                 <td className="px-4 py-3">
                   <Badge variant={log.status === 'success' ? 'success' : 'danger'}>
-                    {log.status === 'success' ? '成功' : '失败'}
+                    {log.status === 'success' ? 'Success' : 'Failed'}
                   </Badge>
                 </td>
                 <td className="px-4 py-3 text-xs text-red-400">{log.error || '-'}</td>

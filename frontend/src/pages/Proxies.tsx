@@ -53,18 +53,18 @@ export default function Proxies() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">代理管理</h1>
-          <p className="text-[var(--text-muted)] text-sm mt-1">共 {proxies.length} 个代理</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Proxy Management</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1">Total {proxies.length} proxies</p>
         </div>
         <Button variant="outline" size="sm" onClick={check} disabled={checking}>
           <RefreshCw className={`h-4 w-4 mr-1 ${checking ? 'animate-spin' : ''}`} />
-          检测全部
+          Check All
         </Button>
       </div>
 
-      {/* 添加代理 */}
+      {/* Add proxy */}
       <Card>
-        <p className="text-sm font-medium text-[var(--text-primary)] mb-3">添加代理（每行一个）</p>
+        <p className="text-sm font-medium text-[var(--text-primary)] mb-3">Add Proxy (one per line)</p>
         <div className="space-y-3">
           <textarea
             value={newProxy}
@@ -77,31 +77,31 @@ export default function Proxies() {
             <input
               value={region}
               onChange={e => setRegion(e.target.value)}
-              placeholder="地区标签 (如 US, SG)"
+              placeholder="Region tag (e.g. US, SG)"
               className="flex-1 bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-primary)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
             />
             <Button onClick={add} size="sm">
-              <Plus className="h-4 w-4 mr-1" /> 添加
+              <Plus className="h-4 w-4 mr-1" /> Add
             </Button>
           </div>
         </div>
       </Card>
 
-      {/* 代理列表 */}
+      {/* Proxy list */}
       <Card className="p-0 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
-              <th className="px-4 py-3 text-left">代理地址</th>
-              <th className="px-4 py-3 text-left">地区</th>
-              <th className="px-4 py-3 text-left">成功/失败</th>
-              <th className="px-4 py-3 text-left">状态</th>
-              <th className="px-4 py-3 text-left">操作</th>
+              <th className="px-4 py-3 text-left">Proxy Address</th>
+              <th className="px-4 py-3 text-left">Region</th>
+              <th className="px-4 py-3 text-left">Success/Failure</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {proxies.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-muted)]">暂无代理</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-muted)]">No proxies</td></tr>
             )}
             {proxies.map(p => (
               <tr key={p.id} className="border-b border-white/5 hover:bg-[var(--bg-hover)]">
@@ -114,7 +114,7 @@ export default function Proxies() {
                 </td>
                 <td className="px-4 py-3">
                   <Badge variant={p.is_active ? 'success' : 'danger'}>
-                    {p.is_active ? '活跃' : '禁用'}
+                     {p.is_active ? 'Active' : 'Inactive'}
                   </Badge>
                 </td>
                 <td className="px-4 py-3">

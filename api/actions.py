@@ -1,4 +1,4 @@
-"""平台操作 API - 通用接口，各平台通过 get_platform_actions/execute_action 实现"""
+"""Platform actions API - generic interface, each platform implements via get_platform_actions/execute_action"""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from pydantic import BaseModel
@@ -16,7 +16,7 @@ class ActionRequest(BaseModel):
 
 @router.get("/{platform}")
 def list_actions(platform: str):
-    """获取平台支持的操作列表"""
+    """Get list of actions supported by the platform"""
     PlatformCls = get(platform)
     instance = PlatformCls(config=RegisterConfig())
     return {"actions": instance.get_platform_actions()}
@@ -30,10 +30,10 @@ def execute_action(
     body: ActionRequest,
     session: Session = Depends(get_session),
 ):
-    """执行平台特定操作"""
+    """Execute platform-specific action"""
     acc_model = session.get(AccountModel, account_id)
     if not acc_model or acc_model.platform != platform:
-        raise HTTPException(404, "账号不存在")
+        raise HTTPException(404, "Account not found")
 
     PlatformCls = get(platform)
     instance = PlatformCls(config=RegisterConfig())
@@ -51,7 +51,7 @@ def execute_action(
 
     try:
         result = instance.execute_action(action_id, account, body.params)
-        # 若操作返回了新 token，更新数据库
+        # If the action returns a new token, update the database
         if result.get("ok") and result.get("data", {}) and isinstance(result["data"], dict):
             data = result["data"]
             if "access_token" in data:

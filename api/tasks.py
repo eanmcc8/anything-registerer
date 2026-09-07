@@ -8,7 +8,7 @@ import time, json, asyncio
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-# 内存任务状态
+# In-memory task status
 _tasks: dict = {}
 
 
@@ -25,7 +25,7 @@ class RegisterTaskRequest(BaseModel):
 
 
 def _log(task_id: str, msg: str):
-    """向任务追加一条日志"""
+    """Append a log line to the task"""
     ts = time.strftime("%H:%M:%S")
     entry = f"[{ts}] {msg}"
     if task_id in _tasks:
@@ -34,7 +34,7 @@ def _log(task_id: str, msg: str):
 
 
 def _auto_upload_cpa(task_id: str, account):
-    """注册成功后自动上传 CPA（仅 chatgpt 平台，且已配置时）"""
+    """Auto-upload CPA after successful registration (chatgpt platform only, when configured)"""
     if getattr(account, "platform", "") != "chatgpt":
         return
     try:
@@ -55,7 +55,7 @@ def _auto_upload_cpa(task_id: str, account):
             ok, msg = upload_to_cpa(token_data)
             _log(task_id, f"  [CPA] {'✓ ' + msg if ok else '✗ ' + msg}")
     except Exception as e:
-        _log(task_id, f"  [CPA] 自动上传异常: {e}")
+        _log(task_id, f"  [CPA] Auto-upload exception: {e}")
 
 
 def _run_register(task_id: str, req: RegisterTaskRequest):
@@ -83,7 +83,7 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
         )
         def _do_one(i: int):
             from core.proxy_pool import proxy_pool
-            # 若未指定代理，从代理池取
+            # If no proxy specified, get one from the proxy pool
             _proxy = req.proxy
             if not _proxy:
                 _proxy = proxy_pool.get_next()
@@ -93,31 +93,31 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
                 proxy=_proxy,
                 extra=req.extra,
             )
-            # 每个线程独立创建 platform 实例（避免共享状态）
+            # Each thread creates its own platform instance (avoid shared state)
             _mailbox = mailbox.__class__(**mailbox.__dict__) if req.concurrency > 1 else mailbox
             _platform = PlatformCls(config=_config, mailbox=_mailbox)
             _platform._log_fn = lambda msg: _log(task_id, msg)
             try:
                 _tasks[task_id]["progress"] = f"{i+1}/{req.count}"
-                _log(task_id, f"开始注册第 {i+1}/{req.count} 个账号")
-                if _proxy: _log(task_id, f"使用代理: {_proxy}")
+                _log(task_id, f"Start registering account {i+1}/{req.count}")
+                if _proxy: _log(task_id, f"Using proxy: {_proxy}")
                 account = _platform.register(
                     email=req.email or None,
                     password=req.password,
                 )
                 save_account(account)
                 if _proxy: proxy_pool.report_success(_proxy)
-                _log(task_id, f"✓ 注册成功: {account.email}")
+                _log(task_id, f"✓ Registration successful: {account.email}")
                 _auto_upload_cpa(task_id, account)
-                # 若有 cashier_url，打印并记录到任务结果
+                # If there's a cashier_url, log and record it in task results
                 cashier_url = (account.extra or {}).get("cashier_url", "")
                 if cashier_url:
-                    _log(task_id, f"  [升级链接] {cashier_url}")
+                    _log(task_id, f"  [Upgrade link] {cashier_url}")
                     _tasks[task_id].setdefault("cashier_urls", []).append(cashier_url)
                 return True
             except Exception as e:
                 if _proxy: proxy_pool.report_fail(_proxy)
-                _log(task_id, f"✗ 注册失败: {e}")
+                _log(task_id, f"✗ Registration failed: {e}")
                 return str(e)
 
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -131,7 +131,7 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
                 else:
                     errors.append(result)
     except Exception as e:
-        _log(task_id, f"致命错误: {e}")
+        _log(task_id, f"Fatal error: {e}")
         _tasks[task_id]["status"] = "failed"
         _tasks[task_id]["error"] = str(e)
         return
@@ -139,7 +139,7 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
     _tasks[task_id]["status"] = "done"
     _tasks[task_id]["success"] = success
     _tasks[task_id]["errors"] = errors
-    _log(task_id, f"完成: 成功 {success} 个, 失败 {len(errors)} 个")
+    _log(task_id, f"Done: {success} success, {len(errors)} failures")
 
 
 @router.post("/register")
@@ -156,9 +156,9 @@ def create_register_task(
 
 @router.get("/{task_id}/logs/stream")
 async def stream_logs(task_id: str, since: int = 0):
-    """SSE 实时日志流"""
+    """SSE real-time log stream"""
     if task_id not in _tasks:
-        raise HTTPException(404, "任务不存在")
+        raise HTTPException(404, "Task not found")
 
     async def event_generator():
         sent = since
@@ -198,7 +198,7 @@ def get_logs(platform: str = None, page: int = 1, page_size: int = 50):
 @router.get("/{task_id}")
 def get_task(task_id: str):
     if task_id not in _tasks:
-        raise HTTPException(404, "任务不存在")
+        raise HTTPException(404, "Task not found")
     return _tasks[task_id]
 
 
